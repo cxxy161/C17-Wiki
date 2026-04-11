@@ -16,22 +16,21 @@ export default defineConfig({
           lang: 'zh-CN',
         },
       },
-      // 1. 禁用所有“书籍感”的导航
+      // 1. 禁用上下页导航
       pagination: false,
-      // 2. 移除所有页面元数据（最后更新时间、编辑链接等）
+      // 2. 移除最后更新时间
       lastUpdated: false,
-      editLink: {
-        baseUrl: null,
-      },
-      // 3. 禁用侧边栏的“收起”功能，让它像 Wiki 目录一样直观（可选）
+      // 3. 彻底禁用编辑链接：不要写 editLink 属性，或者把整个对象删掉
+      // 这里的配置如果不需要就直接注释掉或删除
+      
+      // 4. 禁用页脚
+      credits: false,
       sidebar: [
         {
           label: '星体百科',
           autogenerate: { directory: 'planet' }, 
         },
       ],
-      // 4. 彻底移除页脚（Credits 等）
-      credits: false,
     }),
   ],
 });
