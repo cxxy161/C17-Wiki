@@ -9,7 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'C17星区 Wiki',
-      // 1. 语言锁定
+      // 1. 语言配置
       defaultLocale: 'zh-cn',
       locales: {
         root: {
@@ -17,12 +17,12 @@ export default defineConfig({
           lang: 'zh-cn',
         },
       },
-      // 2. 彻底移除所有按钮和链接
-      pagination: false,    // 删掉底部的“下一页”
-      lastUpdated: false,   // 删掉最后更新时间
-      credits: false,       // 删掉页脚 Starlight 标志
-      // 3. 社交链接也清空
-      social: {},
+      // 2. 移除所有多余功能（Wiki 化）
+      pagination: false,    // 禁用上下页
+      lastUpdated: false,   // 禁用更新时间
+      credits: false,       // 禁用页脚标志
+      // 3. 修正后的社交链接语法（必须是空数组）
+      social: [], 
       // 4. 侧边栏
       sidebar: [
         {
