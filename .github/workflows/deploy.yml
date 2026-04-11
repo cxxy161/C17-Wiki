@@ -2,8 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,8 +16,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install, build, and upload with Astro
         uses: withastro/action@v3
+        with:
+          path: C17_wiki  # <--- 关键！告诉它你的项目在哪个子文件夹
 
   deploy:
     needs: build
