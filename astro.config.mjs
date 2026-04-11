@@ -26,8 +26,24 @@ export default defineConfig({
       // 4. 侧边栏
       sidebar: [
         {
-          label: '星体百科',
+          label: '星球',
           autogenerate: { directory: 'planet' }, 
+        },
+        {
+          label: '文档',
+          autogenerate: { directory: '.' },
+        },
+        {
+          label: '历史',
+          autogenerate: { directory: 'history' },
+        },
+        {
+          label: '物理',
+          autogenerate: { directory: 'physics' },
+        },
+        {
+          label: '政治',
+          autogenerate: { directory: 'politics' },
         },
       ],
     }),
