@@ -9,22 +9,21 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'C17星区 Wiki',
-      defaultLocale: 'zh-CN',
+      // 1. 语言锁定
+      defaultLocale: 'zh-cn',
       locales: {
         root: {
           label: '简体中文',
-          lang: 'zh-CN',
+          lang: 'zh-cn',
         },
       },
-      // 1. 禁用上下页导航
-      pagination: false,
-      // 2. 移除最后更新时间
-      lastUpdated: false,
-      // 3. 彻底禁用编辑链接：不要写 editLink 属性，或者把整个对象删掉
-      // 这里的配置如果不需要就直接注释掉或删除
-      
-      // 4. 禁用页脚
-      credits: false,
+      // 2. 彻底移除所有按钮和链接
+      pagination: false,    // 删掉底部的“下一页”
+      lastUpdated: false,   // 删掉最后更新时间
+      credits: false,       // 删掉页脚 Starlight 标志
+      // 3. 社交链接也清空
+      social: {},
+      // 4. 侧边栏
       sidebar: [
         {
           label: '星体百科',
