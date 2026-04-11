@@ -4,24 +4,20 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://cxxy161.github.io',
-  base: '/C17-Wiki',
+  base: '/C17-Wiki/', // 重点 1：确保末尾有斜杠
   integrations: [
     starlight({
       title: 'C17星区 Wiki',
-      defaultLocale: 'root',
-      locales: {
-        root: {
-          label: '简体中文',
-          lang: 'zh-CN',
-        },
-      },
+      // 重点 2：对于单语言项目，去掉 locales 和 defaultLocale 配置
+      // Starlight 会默认使用 root，手动写出来有时会干扰路径计算
       sidebar: [
         {
           label: '星体百科',
-          // 重点：尝试去掉 directory 里的所有前缀，甚至可以试着写成 './planet'
           autogenerate: { directory: 'planet' }, 
         },
       ],
+      // 重点 3：在这里统一设置语言
+      defaultLocale: 'zh-cn', 
     }),
   ],
 });
