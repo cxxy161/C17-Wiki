@@ -4,20 +4,34 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://cxxy161.github.io',
-  base: '/C17-Wiki/', // 重点 1：确保末尾有斜杠
+  base: '/C17-Wiki/',
+  trailingSlash: 'always', 
   integrations: [
     starlight({
       title: 'C17星区 Wiki',
-      // 重点 2：对于单语言项目，去掉 locales 和 defaultLocale 配置
-      // Starlight 会默认使用 root，手动写出来有时会干扰路径计算
+      defaultLocale: 'zh-CN',
+      locales: {
+        root: {
+          label: '简体中文',
+          lang: 'zh-CN',
+        },
+      },
+      // 1. 禁用所有“书籍感”的导航
+      pagination: false,
+      // 2. 移除所有页面元数据（最后更新时间、编辑链接等）
+      lastUpdated: false,
+      editLink: {
+        baseUrl: null,
+      },
+      // 3. 禁用侧边栏的“收起”功能，让它像 Wiki 目录一样直观（可选）
       sidebar: [
         {
           label: '星体百科',
           autogenerate: { directory: 'planet' }, 
         },
       ],
-      // 重点 3：在这里统一设置语言
-      defaultLocale: 'zh-cn', 
+      // 4. 彻底移除页脚（Credits 等）
+      credits: false,
     }),
   ],
 });
