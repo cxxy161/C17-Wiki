@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+  site: 'https://cxxy161.github.io',
+  base: '/C17-Wiki',
   integrations: [
     starlight({
       title: 'C17星区 Wiki',
