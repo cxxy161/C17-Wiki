@@ -17,15 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --- 插入下面这一段 ---
-      - name: Setup Node.js v22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      # ---------------------
-
       - name: Install, build, and upload with Astro
         uses: withastro/action@v3
+        with:
+          node-version: 22 # 强制让 Astro Action 使用 Node 22
 
   deploy:
     needs: build
