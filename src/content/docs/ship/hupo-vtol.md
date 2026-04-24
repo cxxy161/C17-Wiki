@@ -1,5 +1,5 @@
 ---
-title: 玄武-VTOL
+title: 琥珀-VTOL
 ---
 
 #### 1. 基础参数
