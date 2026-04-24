@@ -24,26 +24,34 @@ export default defineConfig({
       // 3. 修正后的社交链接语法（必须是空数组）
       social: [], 
       // 4. 侧边栏
-      sidebar: [
+            sidebar: [
         {
-          label: '星球',
-          autogenerate: { directory: 'planet' }, 
+          label: '企业/集团',
+          autogenerate: { directory: 'company' },
         },
         {
-          label: '文档',
-          autogenerate: { directory: '.' },
+          label: '种族/文明',
+          autogenerate: { directory: 'ethnicity' },
         },
         {
-          label: '历史',
+          label: '历史/战役',
           autogenerate: { directory: 'history' },
+        },
+        {
+          label: '国家/政体',
+          autogenerate: { directory: 'nation' },
         },
         {
           label: '物理',
           autogenerate: { directory: 'physics' },
         },
         {
-          label: '政治',
-          autogenerate: { directory: 'politics' },
+          label: '星球',
+          autogenerate: { directory: 'planet' },
+        },
+        {
+          label: '舰船',
+          autogenerate: { directory: 'ship' },
         },
       ],
     }),
