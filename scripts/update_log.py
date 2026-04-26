@@ -1,7 +1,7 @@
 import os
 import subprocess
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from openai import OpenAI
 
 # 1. 初始化 NVIDIA 客户端
@@ -14,25 +14,21 @@ def get_git_diff():
     """从水位线（上次日志更新点）开始比对，防止报错导致的记录丢失"""
     file_path = 'src/content/docs/changelog.md'
     try:
-        # 找到最后一次修改 changelog.md 的 commit hash
         last_log_commit = subprocess.check_output([
             'git', 'log', '-1', '--format=%H', '--', file_path
         ]).decode('utf-8').strip()
 
         if last_log_commit:
-            # 关键：从该 commit 对比到 HEAD，中间跨越的所有 commit 都会被计入
-            # 过滤掉 changelog.md 自身的变更，只看词条变更
             diff_output = subprocess.check_output([
                 'git', 'diff', last_log_commit, 'HEAD', '--', '*.md', '*.mdx'
             ]).decode('utf-8')
             
-            # 排除掉只有 changelog.md 变动的纯日志推送
             if diff_output.strip():
                 return diff_output
     except Exception as e:
         print(f"水位线查找失败（可能是首次运行）: {e}")
     
-    # 兜底逻辑：如果找不到水位线，回退到比对上一次提交
+    # 兜底逻辑
     try:
         return subprocess.check_output([
             'git', 'diff', 'HEAD^', 'HEAD', '--', '*.md', '*.mdx'
@@ -47,7 +43,6 @@ def get_current_version():
         return "0.1.0"
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-        # 匹配 #### v1.2.3 格式
         match = re.search(r'#### v(\d+\.\d+\.\d+)', content)
         return match.group(1) if match else "0.1.0"
 
@@ -71,7 +66,6 @@ def generate_summary_and_level(diff):
         return None, None
 
     try:
-        # 在提示词中保留你原本的所有要求，并增加版本判断指令
         prompt = (
             "你是一个逻辑严密的科幻设定集编辑。请分析 Git Diff，按以下逻辑生成版本日志：\n\n"
             "【逻辑模版（灵活运用）】\n"
@@ -92,7 +86,7 @@ def generate_summary_and_level(diff):
             f"待分析内容：\n{diff[:5000]}"
         )
 
-
+        # 彻底移除 timeout 限制，让它死等
         completion = client.chat.completions.create(
             model="deepseek-ai/deepseek-v4-flash",
             messages=[{"role": "user", "content": prompt}],
@@ -101,7 +95,6 @@ def generate_summary_and_level(diff):
         
         res = completion.choices[0].message.content.strip()
         
-        # 解析 AI 的回复
         level_match = re.search(r'LEVEL:\s*(Major|Minor|Patch)', res, re.I)
         summary_match = re.search(r'SUMMARY:\s*(.*)', res, re.S)
         
@@ -120,12 +113,18 @@ def insert_log_to_file(level, summary):
 
     current_v = get_current_version()
     new_v = bump_version(current_v, level)
-    date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    
+    # 获取 UTC 时间并生成埋点标签
+    now_utc = datetime.now(timezone.utc)
+    date_iso = now_utc.isoformat()
+    display_utc = now_utc.strftime('%Y-%m-%d %H:%M')
 
-    # 包含版本号的新标题格式
+    # 如果 AI 没写列表符，自动补上
+    formatted_summary = summary if summary.startswith(("*", "1.")) else f"* {summary}"
+
     new_entry = (
-        f"#### v{new_v} ({date_str})\n\n"
-        f"{summary}\n\n"
+        f"#### v{new_v} (<span class='log-date' data-time='{date_iso}'>{display_utc} UTC</span>)\n\n"
+        f"{formatted_summary}\n\n"
         f"---\n\n"
     )
 

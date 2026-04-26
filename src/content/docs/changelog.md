@@ -2,41 +2,31 @@
 title: 更新日志
 ---
 `LOG`
-#### v0.3.0 (2026-04-26 07:28)
+
+#### v0.1.0 (2026-04-26 07:28)
 
 新增合祀星生活习俗词条，涵盖饮食、服饰、居住、节律、节日与娱乐。
 
 ---
 
-#### v0.2.0 (2026-04-26 06:58)
-
-- 新增了合祀星政治与社会形态完整词条
-- 定义了功能性社区与知识型权威的核心理念
-- 描述了三级岛屿层级化组织架构与治理模式
-- 设定了跨岛联系机制与潮汐大会平台
-- 完善了权力制衡、惩罚机制与社会流动性规则
-
----
-
-#### v0.1.2 (2026-04-26 06:27)
-
-- 修改了更新日志生成提示的格式要求
-- 修正了首页导航链接路径
-
----
-
-#### v0.1.1 (2026-04-26 06:17)
-
-修改了首页按钮图标，优化了版本号自动更新与日志插入逻辑。
-
----
-
-#### 2026-04-26 06:09
-
-- 修复了日志插入脚本的缩进错误  
-- 删除了重复的文件写入操作  
-- 移除了冗余注释，精简代码  
-- 清空了更新日志文件内容
-
----
-
+<script>
+  function convertToLocalTime() {
+    const dateElements = document.querySelectorAll('.log-date');
+    dateElements.forEach(el => {
+      const utcTime = el.getAttribute('data-time');
+      if (utcTime) {
+        const localDate = new Date(utcTime);
+        el.innerText = localDate.toLocaleString(undefined, {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+      }
+    });
+  }
+  convertToLocalTime();
+  window.addEventListener('astro:page-load', convertToLocalTime);
+</script>
