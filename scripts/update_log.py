@@ -30,7 +30,7 @@ def generate_summary(diff):
             model="deepseek-ai/deepseek-v4-flash",
             messages=[{
                 "role": "user", 
-                "content": f"你是一个科幻设定集物理词条编辑。请根据以下 Git 变更内容，总结出一条简练的更新日志（每个点20字以内，不含废话和表情包，正确使用md格式）。善于使用'修改了'、'增加了'等开头，直接描述设定点。\n\n内容如下：\n{diff}"
+                "content": f"你是一个科幻设定集物理词条编辑。请根据以下 Git 变更内容，总结出一条简练的更新日志（每个点20字以内，不含废话和表情包，正确使用md格式）。善于使用'修改了'、'增加了'、完善了等开头，直接描述设定点。\n\n内容如下：\n{diff}"
             }],
             temperature=0.2,
             top_p=0.7,
@@ -51,7 +51,11 @@ def insert_log_to_file(summary):
         return
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-    new_entry = f"* **{date_str}**: {summary}\n"
+     new_entry = (
+        f"#### {date_str}\n\n"
+        f"{summary}\n\n"
+        f"---\n\n"
+    )
 
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -59,15 +63,14 @@ def insert_log_to_file(summary):
     # 寻找标识符位置
     marker = "`LOG`"
     try:
-        # 找到包含标识符的那一行索引
         index = next(i for i, line in enumerate(lines) if marker in line)
-        # 在标识符下一行插入
+        # 插在标识符下面，保持由新到旧
         lines.insert(index + 1, new_entry)
-        print(f"成功注入日志: {summary}")
     except StopIteration:
-        # 如果没找到标识符，就追加到末尾
         lines.append(new_entry)
-        print("未找到标识符，已追加到文件末尾")
+
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
 
     with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(lines)
