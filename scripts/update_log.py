@@ -11,10 +11,33 @@ client = OpenAI(
 )
 
 def get_git_diff():
+    """从水位线（上次日志更新点）开始比对，防止报错导致的记录丢失"""
+    file_path = 'src/content/docs/changelog.md'
     try:
-        return subprocess.check_output(['git', 'diff', 'HEAD^', 'HEAD']).decode('utf-8')
+        # 找到最后一次修改 changelog.md 的 commit hash
+        last_log_commit = subprocess.check_output([
+            'git', 'log', '-1', '--format=%H', '--', file_path
+        ]).decode('utf-8').strip()
+
+        if last_log_commit:
+            # 关键：从该 commit 对比到 HEAD，中间跨越的所有 commit 都会被计入
+            # 过滤掉 changelog.md 自身的变更，只看词条变更
+            diff_output = subprocess.check_output([
+                'git', 'diff', last_log_commit, 'HEAD', '--', '*.md', '*.mdx'
+            ]).decode('utf-8')
+            
+            # 排除掉只有 changelog.md 变动的纯日志推送
+            if diff_output.strip():
+                return diff_output
     except Exception as e:
-        print(f"获取 Diff 失败: {e}")
+        print(f"水位线查找失败（可能是首次运行）: {e}")
+    
+    # 兜底逻辑：如果找不到水位线，回退到比对上一次提交
+    try:
+        return subprocess.check_output([
+            'git', 'diff', 'HEAD^', 'HEAD', '--', '*.md', '*.mdx'
+        ]).decode('utf-8')
+    except:
         return ""
 
 def get_current_version():
