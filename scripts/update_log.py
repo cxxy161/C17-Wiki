@@ -4,7 +4,6 @@ from datetime import datetime
 from openai import OpenAI
 
 # 1. 初始化 NVIDIA 客户端
-# 确保在 GitHub Secrets 中配置了 NVIDIA_API_KEY
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.environ.get("NVIDIA_API_KEY")
@@ -13,7 +12,6 @@ client = OpenAI(
 def get_git_diff():
     """获取最后一次提交的差异内容"""
     try:
-        # HEAD^ 指向上一个提交，HEAD 是当前提交
         return subprocess.check_output(['git', 'diff', 'HEAD^', 'HEAD']).decode('utf-8')
     except Exception as e:
         print(f"获取 Diff 失败: {e}")
@@ -21,7 +19,6 @@ def get_git_diff():
 
 def generate_summary(diff):
     """调用 AI 生成极简总结"""
-    # 过滤掉只有日志文件变动的情况，防止套娃
     if not diff or "src/content/docs/changelog.md" in diff and len(diff.splitlines()) < 10:
         return None
 
@@ -45,13 +42,13 @@ def insert_log_to_file(summary):
     """将日志精准插入到标识符 [LOG_MARKER] 下方"""
     file_path = 'src/content/docs/changelog.md'
     
-    # 确保文件存在
     if not os.path.exists(file_path):
         print(f"找不到文件: {file_path}")
         return
 
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-     new_entry = (
+    # 修复缩进：
+    new_entry = (
         f"#### {date_str}\n\n"
         f"{summary}\n\n"
         f"---\n\n"
@@ -64,7 +61,6 @@ def insert_log_to_file(summary):
     marker = "`LOG`"
     try:
         index = next(i for i, line in enumerate(lines) if marker in line)
-        # 插在标识符下面，保持由新到旧
         lines.insert(index + 1, new_entry)
     except StopIteration:
         lines.append(new_entry)
@@ -72,11 +68,7 @@ def insert_log_to_file(summary):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(lines)
 
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.writelines(lines)
-
 if __name__ == "__main__":
-    # 流程：抓取差异 -> AI 总结 -> 写入文件
     diff_content = get_git_diff()
     summary_text = generate_summary(diff_content)
     
