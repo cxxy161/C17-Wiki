@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  # 必须改为 write，否则 Action 没权限把新日志推回你的仓库
+  contents: write 
   pages: write
   id-token: write
 
@@ -16,11 +17,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 必须设为 0（获取所有历史），否则 git diff 找不到上一个提交会报错
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install openai
+
+      - name: Generate AI Changelog
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          python scripts/update_log.py
+          
+          # 配置 Git 机器人
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 检测 changelog.md 是否被脚本修改过，如果有修改就提交
+          if [ -n "$(git status --porcelain src/content/docs/changelog.md)" ]; then
+            git add src/content/docs/changelog.md
+            git commit -m "docs: 自动更新日志 [skip ci]"
+            git push
+            echo "日志推送完成"
+          else
+            echo "没有日志更新，跳过提交"
+          fi
 
       - name: Install, build, and upload with Astro
         uses: withastro/action@v3
         with:
-          node-version: 22 # 强制让 Astro Action 使用 Node 22
+          node-version: 22
 
   deploy:
     needs: build
